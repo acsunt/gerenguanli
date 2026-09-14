@@ -143,6 +143,38 @@ npx cap sync android
 
 
 
+# Android Release 签名
+
+Release APK 必须使用正式签名，否则手机无法安装。
+
+签名配置文件：
+
+```text
+android/keystore.properties
+```
+
+签名证书：
+
+```text
+android/personal-manager-release.jks
+```
+
+`keystore.properties` 和 `.jks` 不得提交到 Git。
+
+`android/app/build.gradle` 必须在存在 `keystore.properties` 时为 `release` 启用 `signingConfig`。
+
+如果构建产物是：
+
+```text
+app-release-unsigned.apk
+```
+
+发布必须失败。
+
+---
+
+
+
 # Android Release 构建
 
 进入：
@@ -189,6 +221,12 @@ android/app/build/outputs/apk/release/
 *.apk
 ```
 
+必须排除：
+
+```text
+*-unsigned.apk
+```
+
 按：
 
 ```powershell
@@ -197,13 +235,13 @@ LastWriteTime
 
 倒序排序。
 
-选择最新 APK：
+选择最新已签名 APK：
 
 ```powershell
 $ApkCandidates[0]
 ```
 
-如果未发现 APK：
+如果未发现已签名 APK：
 
 ```powershell
 throw

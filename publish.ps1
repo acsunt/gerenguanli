@@ -162,6 +162,11 @@ if (-not (Test-Path $GradleW)) {
     throw "找不到 gradlew.bat"
 }
 
+$KeystoreProperties = Join-Path $ProjectRoot "android\keystore.properties"
+if (-not (Test-Path $KeystoreProperties)) {
+    throw "找不到 android/keystore.properties，无法签名 Release APK"
+}
+
 Push-Location (Join-Path $ProjectRoot "android")
 try {
     Write-Host ""
@@ -185,11 +190,12 @@ if (-not (Test-Path $ApkOutputDir)) {
 
 $ApkCandidates = @(
     Get-ChildItem $ApkOutputDir -Filter *.apk |
+        Where-Object { $_.Name -notmatch '-unsigned\.apk$' } |
         Sort-Object LastWriteTime -Descending
 )
 
 if ($ApkCandidates.Count -eq 0) {
-    throw "找不到 APK"
+    throw "找不到已签名 APK。请确认 android/keystore.properties 和签名证书存在后重新发布。"
 }
 
 $LatestApk = $ApkCandidates[0]

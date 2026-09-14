@@ -33,6 +33,13 @@ release/**/*.aab
 # android sdk path
 android/local.properties
 
+# android signing
+android/keystore.properties
+android/*.jks
+android/*.keystore
+*.jks
+*.keystore
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
