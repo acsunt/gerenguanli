@@ -1,0 +1,29 @@
+@import './tokens.css';
+@import './typography.css';
+
+:root {
+  color: var(--text-1);
+  background: var(--bg-page);
+  font-family: "HarmonyOS Sans","PingFang SC","Microsoft YaHei",sans-serif;
+}
+
+[data-theme="dark"] {
+  --bg-page: #1f211f;
+  --bg-surface: #2a2d2a;
+  --bg-subtle: #333734;
+  --bg-muted: #3a3d3a;
+  --border: #4a4d4a;
+  --text-1: #f3f4f2;
+  --text-2: #c8cbc8;
+  --text-3: #9ea29e;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-page);
+  color: var(--text-1);
+}
+
+* {
+  box-sizing: border-box;
+}

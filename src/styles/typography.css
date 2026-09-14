@@ -1,0 +1,22 @@
+:root {
+  --font-family-base: "HarmonyOS Sans","PingFang SC","Microsoft YaHei",sans-serif;
+  --font-size-title: 22px;
+  --font-size-body: 16px;
+  --line-height-body: 1.8;
+}
+
+.text-title {
+  font-size: var(--font-size-title);
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.text-body {
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  color: var(--text-1);
+}
+
+.text-secondary {
+  color: var(--text-2);
+}

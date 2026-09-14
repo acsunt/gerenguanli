@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PersonalManager</string>
+    <string name="title_activity_main">PersonalManager</string>
+    <string name="package_name">com.personal.manager</string>
+    <string name="custom_url_scheme">com.personal.manager</string>
+</resources>
