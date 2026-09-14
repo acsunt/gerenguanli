@@ -7,10 +7,31 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# dependencies
+node_modules/
+
+# web build
+dist/
+dist-ssr/
+
+# local env
 *.local
+
+# android build
+android/.gradle/
+android/build/
+android/app/build/
+
+# android package
+*.apk
+*.aab
+
+# release archive
+release/**/*.apk
+release/**/*.aab
+
+# android sdk path
+android/local.properties
 
 # Editor directories and files
 .vscode/*
