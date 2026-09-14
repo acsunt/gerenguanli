@@ -1,74 +1,51 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import PMCard from '../../../components/PMCard.vue'
-import PMButton from '../../../components/PMButton.vue'
-import PMTextarea from '../../../components/PMTextarea.vue'
-import PMInput from '../../../components/PMInput.vue'
 import { useSpaceStore } from '../../space/stores/SpaceStore'
-import { useSpacePageLoad } from '../../space/composables/useSpacePageLoad'
 import { useQuoteStore } from '../stores/QuoteStore'
 
 const store = useQuoteStore()
 const spaceStore = useSpaceStore()
-
-const editingId = ref('')
 const content = ref('')
 const source = ref('')
-
-useSpacePageLoad(async (spaceId) => {
-  await store.load(spaceId)
-})
 
 async function save() {
   if (!spaceStore.currentSpaceId || !content.value.trim()) return
 
-  if (editingId.value) {
-    await store.update(editingId.value, {
-      content: content.value,
-      source: source.value
-    })
-    await store.load(spaceStore.currentSpaceId)
-  } else {
-    await store.create({
-      id: crypto.randomUUID(),
-      spaceId: spaceStore.currentSpaceId,
-      content: content.value,
-      source: source.value,
-      createdAt: new Date().toISOString()
-    })
-  }
+  await store.create({
+    id: crypto.randomUUID(),
+    spaceId: spaceStore.currentSpaceId,
+    content: content.value,
+    source: source.value,
+    createdAt: new Date().toISOString()
+  })
 
-  editingId.value = ''
   content.value = ''
   source.value = ''
-}
-
-function editItem(item: any) {
-  editingId.value = item.id
-  content.value = item.content
-  source.value = item.source ?? ''
-}
-
-async function removeItem(id: string) {
-  await store.remove(id, spaceStore.currentSpaceId)
 }
 </script>
 
 <template>
   <div>
-    <h1>摘抄中心</h1>
+    <section class="section">
+      <div class="card">
+        <div class="field">
+          <input v-model="source" class="input" placeholder="来源" />
+        </div>
+        <div class="field">
+          <textarea v-model="content" class="textarea" placeholder="摘抄内容" />
+        </div>
+        <button class="btn btn-primary btn-block" type="button" @click="save">新增摘抄</button>
+      </div>
+    </section>
 
-    <PMCard>
-      <PMInput v-model="source" placeholder="来源" />
-      <PMTextarea v-model="content" placeholder="摘抄内容" />
-      <PMButton @click="save">{{ editingId ? '保存修改' : '新增摘抄' }}</PMButton>
-    </PMCard>
-
-    <PMCard v-for="item in store.items" :key="item.id">
-      <div>{{ item.content }}</div>
-      <small>{{ item.source }}</small>
-      <PMButton variant="secondary" @click="editItem(item)">编辑</PMButton>
-      <PMButton variant="ghost" @click="removeItem(item.id)">删除</PMButton>
-    </PMCard>
+    <section class="section">
+      <div v-if="store.items.length === 0" class="empty">
+        <div class="empty-title">暂无摘抄</div>
+      </div>
+      <div v-for="item in store.items" :key="item.id" class="card" style="margin-bottom:12px">
+        <div class="text-body-lg">{{ item.content }}</div>
+        <div class="text-hint">{{ item.source }}</div>
+      </div>
+    </section>
   </div>
 </template>

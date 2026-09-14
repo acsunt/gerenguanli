@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useSpaceStore } from '../../space/stores/SpaceStore'
-import PMCard from '../../../components/PMCard.vue'
-import PMButton from '../../../components/PMButton.vue'
-import PMTextarea from '../../../components/PMTextarea.vue'
 import { useIdeaStore } from '../stores/IdeaStore'
 
 const store = useIdeaStore()
@@ -26,14 +23,22 @@ async function addIdea() {
 
 <template>
   <div>
-    <h1>灵感</h1>
-    <PMCard>
-      <PMTextarea v-model="content" placeholder="记录灵感..." />
-      <PMButton @click="addIdea">新增灵感</PMButton>
-    </PMCard>
+    <section class="section">
+      <div class="card">
+        <div class="field">
+          <textarea v-model="content" class="textarea" placeholder="记录灵感…" />
+        </div>
+        <button class="btn btn-primary btn-block" type="button" @click="addIdea">新增灵感</button>
+      </div>
+    </section>
 
-    <PMCard v-for="item in store.items" :key="item.id">
-      {{ item.content }}
-    </PMCard>
+    <section class="section">
+      <div v-if="store.items.length === 0" class="empty">
+        <div class="empty-title">暂无灵感</div>
+      </div>
+      <div v-for="item in store.items" :key="item.id" class="card" style="margin-bottom:12px">
+        <div class="text-body-lg">{{ item.content }}</div>
+      </div>
+    </section>
   </div>
 </template>

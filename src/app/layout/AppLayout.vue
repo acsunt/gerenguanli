@@ -1,49 +1,60 @@
 <script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import AppTopBar from '../../modules/navigation/components/AppTopBar.vue'
+import AppTabBar from '../../modules/navigation/components/AppTabBar.vue'
+import AppDrawer from '../../modules/navigation/components/AppDrawer.vue'
+import AppHomeSwitch from '../../modules/navigation/components/AppHomeSwitch.vue'
+import AppRecordTabs from '../../modules/navigation/components/AppRecordTabs.vue'
+import AppTodoTabs from '../../modules/navigation/components/AppTodoTabs.vue'
+import SpaceMenu from '../../modules/space/components/SpaceMenu.vue'
+import { useAppRouteGroups } from './routeGroups'
+import { useThemeStore } from '../../shared/theme/themeStore'
+
+const route = useRoute()
+const { isHomeFamily, isRecordFamily, isTodoFamily } = useAppRouteGroups()
+const themeStore = useThemeStore()
+
+const drawerOpen = ref(false)
+const spaceMenuOpen = ref(false)
+
+const hideChrome = computed(() =>
+  ['/reminder', '/setting', '/space'].includes(route.path)
+)
+
+onMounted(() => {
+  themeStore.initialize()
+})
 </script>
 
 <template>
-  <div class="app-layout">
-    <AppTopBar />
-    <aside class="sidebar">
-      <h3>个人管理</h3>
+  <div class="app-shell">
+    <AppTopBar
+      v-if="!hideChrome"
+      @open-menu="drawerOpen = true"
+      @toggle-space="spaceMenuOpen = !spaceMenuOpen"
+    />
 
-      <RouterLink to="/dashboard">首页</RouterLink>
-      <RouterLink to="/space">空间</RouterLink>
-      <RouterLink to="/diary">记录</RouterLink>
-      <RouterLink to="/idea">想法</RouterLink>
-      <RouterLink to="/task">待办</RouterLink>
-      <RouterLink to="/note">笔记</RouterLink>
-      <RouterLink to="/review">回顾</RouterLink>
-      <RouterLink to="/reminder">提醒</RouterLink>
-      <RouterLink to="/setting">设置</RouterLink>
-    </aside>
+    <SpaceMenu v-if="spaceMenuOpen && !hideChrome" @close="spaceMenuOpen = false" />
+    <AppHomeSwitch v-if="isHomeFamily" />
+    <AppRecordTabs v-if="isRecordFamily" />
+    <AppTodoTabs v-if="isTodoFamily" />
 
-    <main class="main-content">
+    <main :class="hideChrome ? undefined : 'page'">
       <RouterView />
     </main>
+
+    <AppTabBar v-if="!hideChrome" />
+
+    <AppDrawer :open="drawerOpen" @close="drawerOpen = false" />
   </div>
 </template>
 
 <style scoped>
-.app-layout {
-  display: flex;
+.app-shell {
   min-height: 100vh;
+  min-height: 100svh;
   background: var(--bg-page);
-}
-
-.sidebar {
-  width: 220px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  background: var(--bg-surface);
-  border-right: 1px solid var(--border);
-}
-
-.main-content {
-  flex: 1;
-  padding: var(--space-6);
+  overflow-x: hidden;
 }
 </style>

@@ -1,78 +1,54 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import PMCard from '../../../components/PMCard.vue'
-import PMButton from '../../../components/PMButton.vue'
-import PMInput from '../../../components/PMInput.vue'
-import PMTextarea from '../../../components/PMTextarea.vue'
 import { useSpaceStore } from '../../space/stores/SpaceStore'
-import { useSpacePageLoad } from '../../space/composables/useSpacePageLoad'
 import { useDiaryStore } from '../stores/DiaryStore'
+import { formatMonthDay } from '../../../shared/time'
 
 const store = useDiaryStore()
 const spaceStore = useSpaceStore()
-
-const editingId = ref('')
 const title = ref('')
 const content = ref('')
-
-useSpacePageLoad(async (spaceId) => {
-  await store.load(spaceId)
-})
 
 async function save() {
   if (!spaceStore.currentSpaceId || !title.value.trim()) return
 
-  if (editingId.value) {
-    await store.update(editingId.value, {
-      title: title.value,
-      content: content.value,
-      updatedAt: new Date().toISOString()
-    })
-    await store.load(spaceStore.currentSpaceId)
-  } else {
-    await store.create({
-      id: crypto.randomUUID(),
-      spaceId: spaceStore.currentSpaceId,
-      title: title.value,
-      content: content.value,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    })
-  }
+  await store.create({
+    id: crypto.randomUUID(),
+    spaceId: spaceStore.currentSpaceId,
+    title: title.value,
+    content: content.value,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  })
 
-  editingId.value = ''
   title.value = ''
   content.value = ''
-}
-
-function editItem(item: any) {
-  editingId.value = item.id
-  title.value = item.title
-  content.value = item.content
-}
-
-async function removeItem(id: string) {
-  await store.remove(id, spaceStore.currentSpaceId)
 }
 </script>
 
 <template>
   <div>
-    <h1>日记</h1>
+    <section class="section">
+      <div class="card">
+        <div class="field">
+          <input v-model="title" class="input" placeholder="标题" />
+        </div>
+        <div class="field">
+          <textarea v-model="content" class="textarea" placeholder="今天发生了什么…" />
+        </div>
+        <button class="btn btn-primary btn-block" type="button" @click="save">写日记</button>
+      </div>
+    </section>
 
-    <PMCard>
-      <PMInput v-model="title" placeholder="标题" />
-      <PMTextarea v-model="content" placeholder="内容" />
-      <PMButton @click="save">
-        {{ editingId ? '保存修改' : '新增日记' }}
-      </PMButton>
-    </PMCard>
-
-    <PMCard v-for="item in store.items" :key="item.id">
-      <h3>{{ item.title }}</h3>
-      <div>{{ item.content }}</div>
-      <PMButton variant="secondary" @click="editItem(item)">编辑</PMButton>
-      <PMButton variant="ghost" @click="removeItem(item.id)">删除</PMButton>
-    </PMCard>
+    <section class="section">
+      <div v-if="store.items.length === 0" class="empty">
+        <div class="empty-title">暂无日记</div>
+      </div>
+      <div v-for="item in store.items" :key="item.id" class="card" style="margin-bottom:12px">
+        <div class="text-hint">{{ formatMonthDay(item.createdAt) }}</div>
+        <div class="text-heading">{{ item.title }}</div>
+        <div class="text-long">{{ item.content }}</div>
+      </div>
+    </section>
   </div>
 </template>

@@ -1,1 +1,0 @@
-<template><div><h1>空间</h1><p>Space Module</p></div></template>

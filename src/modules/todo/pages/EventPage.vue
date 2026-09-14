@@ -1,64 +1,51 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import PMCard from '../../../components/PMCard.vue'
-import PMButton from '../../../components/PMButton.vue'
-import PMInput from '../../../components/PMInput.vue'
 import { useSpaceStore } from '../../space/stores/SpaceStore'
-import { useSpacePageLoad } from '../../space/composables/useSpacePageLoad'
 import { useEventStore } from '../stores/EventStore'
 
 const store = useEventStore()
 const spaceStore = useSpaceStore()
-
-const editingId = ref('')
 const title = ref('')
-
-useSpacePageLoad(async (spaceId) => {
-  await store.load(spaceId)
-})
+const eventDate = ref('')
 
 async function save() {
   if (!spaceStore.currentSpaceId || !title.value.trim()) return
 
-  if (editingId.value) {
-    await store.update(editingId.value, { title: title.value })
-    await store.load(spaceStore.currentSpaceId)
-  } else {
-    await store.create({
-      id: crypto.randomUUID(),
-      spaceId: spaceStore.currentSpaceId,
-      title: title.value,
-      eventDate: new Date().toISOString(),
-      createdAt: new Date().toISOString()
-    })
-  }
+  await store.create({
+    id: crypto.randomUUID(),
+    spaceId: spaceStore.currentSpaceId,
+    title: title.value,
+    eventDate: eventDate.value || new Date().toISOString().slice(0, 10),
+    createdAt: new Date().toISOString()
+  })
 
-  editingId.value = ''
   title.value = ''
-}
-
-function editItem(item: any) {
-  editingId.value = item.id
-  title.value = item.title
-}
-
-async function removeItem(id: string) {
-  await store.remove(id, spaceStore.currentSpaceId)
+  eventDate.value = ''
 }
 </script>
 
 <template>
   <div>
-    <h1>事件中心</h1>
-    <PMCard>
-      <PMInput v-model="title" placeholder="事件标题" />
-      <PMButton @click="save">{{ editingId ? '保存修改' : '新增事件' }}</PMButton>
-    </PMCard>
+    <section class="section">
+      <div class="card">
+        <div class="field">
+          <input v-model="title" class="input" placeholder="事件标题" />
+        </div>
+        <div class="field">
+          <input v-model="eventDate" class="input" type="date" />
+        </div>
+        <button class="btn btn-primary btn-block" type="button" @click="save">新增事件</button>
+      </div>
+    </section>
 
-    <PMCard v-for="item in store.items" :key="item.id">
-      <div>{{ item.title }}</div>
-      <PMButton variant="secondary" @click="editItem(item)">编辑</PMButton>
-      <PMButton variant="ghost" @click="removeItem(item.id)">删除</PMButton>
-    </PMCard>
+    <section class="section">
+      <div v-if="store.items.length === 0" class="empty">
+        <div class="empty-title">暂无事件</div>
+      </div>
+      <div v-for="item in store.items" :key="item.id" class="card" style="margin-bottom:12px">
+        <div class="text-subhead">{{ item.title }}</div>
+        <div class="text-hint">{{ item.eventDate }}</div>
+      </div>
+    </section>
   </div>
 </template>

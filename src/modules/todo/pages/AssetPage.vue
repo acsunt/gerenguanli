@@ -1,64 +1,51 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import PMCard from '../../../components/PMCard.vue'
-import PMButton from '../../../components/PMButton.vue'
-import PMInput from '../../../components/PMInput.vue'
 import { useSpaceStore } from '../../space/stores/SpaceStore'
-import { useSpacePageLoad } from '../../space/composables/useSpacePageLoad'
 import { useAssetStore } from '../stores/AssetStore'
 
 const store = useAssetStore()
 const spaceStore = useSpaceStore()
-
-const editingId = ref('')
 const name = ref('')
-
-useSpacePageLoad(async (spaceId) => {
-  await store.load(spaceId)
-})
+const expireDate = ref('')
 
 async function save() {
   if (!spaceStore.currentSpaceId || !name.value.trim()) return
 
-  if (editingId.value) {
-    await store.update(editingId.value, { name: name.value })
-    await store.load(spaceStore.currentSpaceId)
-  } else {
-    await store.create({
-      id: crypto.randomUUID(),
-      spaceId: spaceStore.currentSpaceId,
-      name: name.value,
-      createdAt: new Date().toISOString()
-    })
-  }
+  await store.create({
+    id: crypto.randomUUID(),
+    spaceId: spaceStore.currentSpaceId,
+    name: name.value,
+    expireDate: expireDate.value || undefined,
+    createdAt: new Date().toISOString()
+  })
 
-  editingId.value = ''
   name.value = ''
-}
-
-function editItem(item: any) {
-  editingId.value = item.id
-  name.value = item.name
-}
-
-async function removeItem(id: string) {
-  await store.remove(id, spaceStore.currentSpaceId)
+  expireDate.value = ''
 }
 </script>
 
 <template>
   <div>
-    <h1>资产中心</h1>
+    <section class="section">
+      <div class="card">
+        <div class="field">
+          <input v-model="name" class="input" placeholder="资产名称" />
+        </div>
+        <div class="field">
+          <input v-model="expireDate" class="input" type="date" />
+        </div>
+        <button class="btn btn-primary btn-block" type="button" @click="save">新增资产</button>
+      </div>
+    </section>
 
-    <PMCard>
-      <PMInput v-model="name" placeholder="资产名称" />
-      <PMButton @click="save">{{ editingId ? '保存修改' : '新增资产' }}</PMButton>
-    </PMCard>
-
-    <PMCard v-for="item in store.items" :key="item.id">
-      <div>{{ item.name }}</div>
-      <PMButton variant="secondary" @click="editItem(item)">编辑</PMButton>
-      <PMButton variant="ghost" @click="removeItem(item.id)">删除</PMButton>
-    </PMCard>
+    <section class="section">
+      <div v-if="store.items.length === 0" class="empty">
+        <div class="empty-title">暂无资产</div>
+      </div>
+      <div v-for="item in store.items" :key="item.id" class="card" style="margin-bottom:12px">
+        <div class="text-subhead">{{ item.name }}</div>
+        <div class="text-hint">{{ item.expireDate || '无到期日' }}</div>
+      </div>
+    </section>
   </div>
 </template>

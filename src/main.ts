@@ -9,6 +9,7 @@ import { router } from './router'
 import { databaseManager } from './database/sqlite/DatabaseManager'
 import { useSpaceStore } from './modules/space/stores/SpaceStore'
 import { setupSpaceSync } from './modules/space/stores/spaceSync'
+import { useThemeStore } from './shared/theme/themeStore'
 
 async function bootstrap() {
   if (Capacitor.getPlatform() === 'web') {
@@ -22,6 +23,9 @@ async function bootstrap() {
   app.use(pinia)
   app.use(router)
   app.use(VueQueryPlugin)
+
+  const themeStore = useThemeStore()
+  themeStore.initialize()
 
   const spaceStore = useSpaceStore()
   await spaceStore.load()
