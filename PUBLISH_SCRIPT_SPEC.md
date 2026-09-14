@@ -395,24 +395,26 @@ git push
 
 # Git Tag 规则
 
-检查 Tag 是否存在：
+分别检查本地和远端 Tag：
 
 ```powershell
 git tag -l $Tag
+git ls-remote --tags origin refs/tags/$Tag
 ```
 
-存在：
-
-```text
-跳过
-```
-
-不存在：
+本地不存在：
 
 ```powershell
 git tag $Tag
+```
+
+远端不存在：
+
+```powershell
 git push origin $Tag
 ```
+
+已存在则跳过对应步骤，不得把“远端已有 Tag”当成失败。
 
 ---
 

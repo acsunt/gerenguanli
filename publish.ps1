@@ -286,14 +286,22 @@ else {
     Write-Host "无变更，跳过 Commit"
 }
 
-$TagExists = @(git tag -l $Tag | Where-Object { $_ })
+$LocalTagExists = @(git tag -l $Tag | Where-Object { $_ }).Count -gt 0
+$RemoteTagRef = git ls-remote --tags origin "refs/tags/$Tag"
+$RemoteTagExists = -not [string]::IsNullOrWhiteSpace($RemoteTagRef)
 
-if ($TagExists.Count -eq 0) {
+if (-not $LocalTagExists) {
     Invoke-Git -GitArgs @("tag", $Tag) -ErrorMessage "创建 Tag 失败"
+}
+else {
+    Write-Host "本地 Tag 已存在，跳过创建"
+}
+
+if (-not $RemoteTagExists) {
     Invoke-Git -GitArgs @("push", "origin", $Tag) -ErrorMessage "推送 Tag 失败"
 }
 else {
-    Write-Host "Tag 已存在，跳过创建"
+    Write-Host "远端 Tag 已存在，跳过推送"
 }
 
 $global:LASTEXITCODE = 0
