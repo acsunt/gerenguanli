@@ -460,10 +460,20 @@ git push origin $Tag
 
 # GitHub Release 规则
 
-检查：
+检查 Release 是否存在时，不能让 Windows PowerShell 把 `gh release view` 的 stderr（release not found）当成终止错误。应临时把 `$ErrorActionPreference` 设为 `Continue`，再用 `$LASTEXITCODE` 判断：
 
 ```powershell
-gh release view $Tag
+$ReleaseExists = $false
+$previousErrorAction = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+try {
+    $global:LASTEXITCODE = 0
+    & gh release view $Tag *> $null
+    $ReleaseExists = ($LASTEXITCODE -eq 0)
+}
+finally {
+    $ErrorActionPreference = $previousErrorAction
+}
 ```
 
 存在：

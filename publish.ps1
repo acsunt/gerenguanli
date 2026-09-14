@@ -310,9 +310,17 @@ else {
     Write-Host "远端 Tag 已存在，跳过推送"
 }
 
-$global:LASTEXITCODE = 0
-gh release view $Tag *> $null
-$ReleaseExists = ($LASTEXITCODE -eq 0)
+$ReleaseExists = $false
+$previousErrorAction = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+try {
+    $global:LASTEXITCODE = 0
+    & gh release view $Tag *> $null
+    $ReleaseExists = ($LASTEXITCODE -eq 0)
+}
+finally {
+    $ErrorActionPreference = $previousErrorAction
+}
 
 if ($ReleaseExists) {
     Invoke-Gh -GhArgs @("release", "upload", $Tag, $ArchiveApkPath, "--clobber") -ErrorMessage "上传 Release 资产失败"
